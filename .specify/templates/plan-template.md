@@ -17,21 +17,30 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: [e.g., TypeScript 5.x or NEEDS CLARIFICATION]
+**Primary Dependencies**: [e.g., React, router, query/cache library or NEEDS CLARIFICATION]
+**Storage**: [if applicable, e.g., browser cache, local storage, files or N/A]
+**Testing**: [e.g., vitest/jest + RTL + integration harness or NEEDS CLARIFICATION]
+**Target Platform**: [e.g., modern browsers, mobile web]
+**Project Type**: [e.g., web app]
+**Performance Goals**: [feature budgets and constitution baseline alignment]
+**Constraints**: [domain-specific constraints and non-goals]
+**Scale/Scope**: [domain-specific scope assumptions]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Modularity: Does the plan keep clear `api -> adapters -> domain/state -> ui` boundaries?
+- Fetch/Error Consistency: Are all data access paths routed via shared typed client and normalized
+  error contract?
+- UX States: Are loading, success, empty, error, and partial/degraded states defined per async
+  flow?
+- Normalized Data: Is there a canonical mapping from external API shape to internal domain model?
+- Performance: Are global baseline budgets acknowledged and stricter per-feature budgets defined
+  when needed?
+- Test Discipline: Does implementation include both unit and integration coverage for changed
+  behavior?
 
 ## Project Structure
 
@@ -91,8 +100,7 @@ ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: [Document the selected structure and reference the real directories captured above]
 
 ## Complexity Tracking
 
@@ -100,5 +108,5 @@ directories captured above]
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., additional architectural layer] | [current need] | [why simpler layout is insufficient] |
+| [e.g., extra state container] | [specific problem] | [why existing store/selectors are insufficient] |

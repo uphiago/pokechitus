@@ -12,6 +12,14 @@ Auto-generated from all feature plans. Last updated: [DATE]
 [ACTUAL STRUCTURE FROM PLANS]
 ```
 
+## Constitution Compliance
+
+- Enforce modular boundaries and predictable dependency direction.
+- Route external API data through shared typed client + normalization path.
+- Ensure explicit UX states for async flows: loading, success, empty, error, partial.
+- Maintain required unit + integration coverage for changed behavior.
+- Track feature performance against constitution baseline and stricter feature budgets.
+
 ## Commands
 
 [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]

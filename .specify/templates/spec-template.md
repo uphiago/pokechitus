@@ -1,8 +1,8 @@
 # Feature Specification: [FEATURE NAME]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
+**Feature Branch**: `[###-feature-name]`
+**Created**: [DATE]
+**Status**: Draft
 **Input**: User description: "$ARGUMENTS"
 
 ## User Scenarios & Testing *(mandatory)*
@@ -11,7 +11,7 @@
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
   you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
+
   Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
   Think of each story as a standalone slice of functionality that can be:
   - Developed independently
@@ -65,6 +65,14 @@
 
 [Add more user stories as needed, each with an assigned priority]
 
+### UX State Matrix *(mandatory for async flows)*
+
+- Loading: [What user sees while request is in flight]
+- Success: [What user sees when data resolves]
+- Empty: [What user sees when result set is empty]
+- Error: [What user sees when operation fails]
+- Partial/Degraded: [What user sees when only partial data is available]
+
 ### Edge Cases
 
 <!--
@@ -85,20 +93,31 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
+- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-006**: System MUST define data-fetching behavior through a shared typed client path.
+- **FR-007**: System MUST define normalized domain model(s) for external API responses before UI
+  rendering.
+- **FR-008**: System MUST define a stable error contract for API and domain failures.
 
 *Example of marking unclear requirements:*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-009**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
+- **FR-010**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
+
+### Data Normalization Plan *(mandatory when external APIs are consumed)*
+
+- Source payload(s): [List endpoint payloads]
+- Canonical model(s): [Define internal normalized entities]
+- Mapping rules: [Transformation, defaults, and compatibility handling]
+- Selector/view-model contract: [How UI consumes normalized data]
 
 ## Success Criteria *(mandatory)*
 
@@ -113,6 +132,7 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-005**: [Performance metric aligned to constitution budget baseline and any stricter feature budget]
 
 ## Assumptions
 
