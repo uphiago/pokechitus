@@ -10,6 +10,7 @@ type Props = {
   onPageChange: (page: number) => void;
   onToggleFavorite: (id: string) => void;
   onOpenDetail: (id: string) => void;
+  onPrefetchDetail?: (id: string) => void;
 };
 
 export const PokemonList = ({
@@ -20,7 +21,8 @@ export const PokemonList = ({
   isHydrating,
   onPageChange,
   onToggleFavorite,
-  onOpenDetail
+  onOpenDetail,
+  onPrefetchDetail
 }: Props) => {
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
 
@@ -42,6 +44,7 @@ export const PokemonList = ({
             pokemon={pokemon}
             onToggleFavorite={onToggleFavorite}
             onOpenDetail={onOpenDetail}
+            onPrefetchDetail={onPrefetchDetail}
           />
         ))}
       </div>

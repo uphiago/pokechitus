@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AsyncState } from '../components/AsyncState';
@@ -13,6 +14,8 @@ import {
 } from '../../state/searchSessionStore';
 import { usePokemonBrowseQuery } from '../../state/usePokemonBrowseQuery';
 import { type FavoritesState, toggleFavorite } from '../../state/favoritesStore';
+import { fetchPokemonDetailView } from '../../state/usePokemonDetailQuery';
+import { queryKeys } from '../../state/queryKeys';
 
 type Props = {
   favorites: FavoritesState;
@@ -43,6 +46,7 @@ const sessionToQueryString = (session: ReturnType<typeof createSearchSession>) =
 
 export const BrowsePage = ({ favorites, setFavorites }: Props) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState(() => readSessionFromParams(searchParams));
   const query = usePokemonBrowseQuery();
@@ -103,15 +107,19 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [catalog]);
 
+  const liveMessage = `Showing ${visible.items.length} Pokemon on page ${session.page}. Total matching: ${visible.total}.`;
+
   return (
     <main>
       <header className="hero">
         <p className="hero-kicker">PokeAPI Explorer</p>
-        <h1>PokeCheetos</h1>
+        <h1 id="browse-title" tabIndex={-1}>PokeCheetos</h1>
         <p className="hero-text">
           Discover Pokemon with a richer catalog view, instant filters, favorites, and fluid navigation.
         </p>
       </header>
+
+      <p className="sr-only" aria-live="polite">{liveMessage}</p>
 
       <BrowseFilters
         session={session}
@@ -142,6 +150,12 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
           onOpenDetail={(id) => {
             const qs = sessionToQueryString(session);
             navigate(`/pokemon/${id}${qs ? `?${qs}` : ''}`);
+          }}
+          onPrefetchDetail={(id) => {
+            void queryClient.prefetchQuery({
+              queryKey: queryKeys.detail(id),
+              queryFn: ({ signal }) => fetchPokemonDetailView(id, favorites.ids, signal)
+            });
           }}
         />
       </AsyncState>

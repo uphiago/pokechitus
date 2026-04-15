@@ -6,6 +6,17 @@ export type PokemonSummary = {
   isFavorite: boolean;
 };
 
+export type PokemonEvolution = {
+  id: string;
+  name: string;
+};
+
+export type PokemonTypeMatchup = {
+  weakTo: string[];
+  resistantTo: string[];
+  immuneTo: string[];
+};
+
 export type PokemonDetail = {
   id: string;
   name: string;
@@ -15,6 +26,8 @@ export type PokemonDetail = {
   weight: number | null;
   abilities: string[];
   stats: Array<{ name: string; value: number }>;
+  evolutionChain: PokemonEvolution[];
+  typeMatchup: PokemonTypeMatchup;
   isFavorite: boolean;
 };
 

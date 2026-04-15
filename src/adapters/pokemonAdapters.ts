@@ -12,10 +12,10 @@ export const toPokemonSummary = (
   isFavorite
 });
 
-export const toPokemonDetail = (
+export const toPokemonDetailBase = (
   detail: PokeDetailResponse,
   isFavorite: boolean
-): PokemonDetail => ({
+): Omit<PokemonDetail, 'evolutionChain' | 'typeMatchup'> => ({
   id: String(detail.id),
   name: detail.name,
   types: detail.types?.map((t) => t.type.name) ?? [],

@@ -7,6 +7,7 @@ type Props = {
   pokemon: Pick<PokemonSummary, 'id' | 'name' | 'types' | 'isFavorite' | 'spriteUrl'>;
   onToggleFavorite: (id: string) => void;
   onOpenDetail?: (id: string) => void;
+  onPrefetchDetail?: (id: string) => void;
 };
 
 const typeClass = (type: string | undefined): string => {
@@ -14,7 +15,7 @@ const typeClass = (type: string | undefined): string => {
   return `type-${type.replace(/\s+/g, '-').toLowerCase()}`;
 };
 
-export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) => {
+export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail, onPrefetchDetail }: Props) => {
   const [src, setSrc] = useState(pokemon.spriteUrl ?? FALLBACK_SPRITE);
   const [loaded, setLoaded] = useState(false);
 
@@ -56,7 +57,12 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) 
           {pokemon.isFavorite ? '★ Favorited' : '☆ Favorite'}
         </button>
         {onOpenDetail ? (
-          <button className="btn btn-primary touch-btn" onClick={() => onOpenDetail(pokemon.id)}>
+          <button
+            className="btn btn-primary touch-btn"
+            onMouseEnter={() => onPrefetchDetail?.(pokemon.id)}
+            onFocus={() => onPrefetchDetail?.(pokemon.id)}
+            onClick={() => onOpenDetail(pokemon.id)}
+          >
             Details
           </button>
         ) : null}
