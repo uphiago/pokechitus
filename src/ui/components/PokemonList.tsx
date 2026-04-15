@@ -6,6 +6,7 @@ type Props = {
   page: number;
   pageSize: number;
   total: number;
+  isHydrating?: boolean;
   onPageChange: (page: number) => void;
   onToggleFavorite: (id: string) => void;
   onOpenDetail: (id: string) => void;
@@ -16,6 +17,7 @@ export const PokemonList = ({
   page,
   pageSize,
   total,
+  isHydrating,
   onPageChange,
   onToggleFavorite,
   onOpenDetail
@@ -32,7 +34,8 @@ export const PokemonList = ({
           Page <strong>{page}</strong> / {maxPage}
         </p>
       </div>
-      <div className="grid">
+
+      <div className="grid motion-fade" key={`grid-${page}`}>
         {items.map((pokemon) => (
           <PokemonCard
             key={pokemon.id}
@@ -42,7 +45,8 @@ export const PokemonList = ({
           />
         ))}
       </div>
-      <div className="pagination">
+
+      <div className="pagination sticky-pagination">
         <button className="btn" onClick={() => onPageChange(1)} disabled={page <= 1}>
           First
         </button>
@@ -58,6 +62,7 @@ export const PokemonList = ({
         <button className="btn" onClick={() => onPageChange(maxPage)} disabled={page >= maxPage}>
           Last
         </button>
+        {isHydrating ? <span className="hydrating">Loading more...</span> : null}
       </div>
     </section>
   );

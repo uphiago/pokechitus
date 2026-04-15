@@ -7,8 +7,8 @@
 
 Build a browser-based Pokemon discovery experience with search, filters, pagination, details, and
 favorites persisted in local browser storage. The implementation uses a normalized domain model,
-shared data-access policy, and explicit UX state rendering for loading/success/empty/error/partial
-states.
+shared data-access policy, explicit UX state rendering for loading/success/empty/error/partial
+states, progressive catalog hydration in chunks, and prefetch behavior to keep pagination fluid.
 
 ## Technical Context
 
@@ -93,6 +93,8 @@ error-state contracts, and local favorites persistence behavior.
 - `contracts/ui-contracts.md` defines user-visible contract for browse/detail/favorite behaviors and
   UX state guarantees.
 - `quickstart.md` defines local setup, verification flow, and acceptance checks.
+- UX delivery includes mobile filter toggle, sticky pagination controls, touch-friendly actions,
+  skeleton loading, and image fallback behavior.
 - Agent context is updated via `.specify/scripts/bash/update-agent-context.sh codex`.
 
 ## Post-Design Constitution Check

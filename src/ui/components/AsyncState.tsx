@@ -25,18 +25,30 @@ export const AsyncState = ({
 
   if (error) {
     return (
-      <div data-testid="state-error" className="banner err">
+      <div data-testid="state-error" className="state-panel state-error">
+        <h3>Oops, something failed</h3>
         <p>{error}</p>
-        {onRetry ? <button className="btn" onClick={onRetry}>Retry</button> : null}
+        {onRetry ? (
+          <button className="btn btn-primary touch-btn" onClick={onRetry}>
+            Retry
+          </button>
+        ) : null}
       </div>
     );
   }
 
-  if (empty) return <p data-testid="state-empty">No Pokemon found.</p>;
+  if (empty) {
+    return (
+      <div data-testid="state-empty" className="state-panel state-empty">
+        <h3>No Pokemon found</h3>
+        <p>Try another name or remove filters to broaden your search.</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      {partial ? <div className="banner warn">Showing last available data.</div> : null}
+      {partial ? <div className="banner warn">Showing last available data while refreshing.</div> : null}
       {children}
     </>
   );

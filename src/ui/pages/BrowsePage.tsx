@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AsyncState } from '../components/AsyncState';
 import { BrowseFilters } from '../components/BrowseFilters';
@@ -23,6 +23,20 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
   const navigate = useNavigate();
   const [session, setSession] = useState(createSearchSession());
   const query = usePokemonBrowseQuery();
+
+  useEffect(() => {
+    const nextPageNeed = (session.page + 1) * session.pageSize;
+    if (query.loadedCount < nextPageNeed && query.hasNextPage && !query.isFetchingNextPage) {
+      void query.fetchNextPage();
+    }
+  }, [
+    query.fetchNextPage,
+    query.hasNextPage,
+    query.isFetchingNextPage,
+    query.loadedCount,
+    session.page,
+    session.pageSize
+  ]);
 
   const catalog = useMemo(() => {
     if (!query.data) return [];
@@ -59,6 +73,8 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
         session={session}
         typeOptions={typeOptions}
         resultCount={visible.total}
+        loadedCount={query.loadedCount}
+        totalAvailable={query.totalAvailable}
         onQueryChange={(value) => setSession((old) => setQuery(old, value))}
         onTypeChange={(value) => setSession((old) => setTypeFilter(old, value))}
       />
@@ -76,6 +92,7 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
           page={session.page}
           pageSize={session.pageSize}
           total={visible.total}
+          isHydrating={query.isHydrating}
           onPageChange={(page) => setSession((old) => setPage(old, page))}
           onToggleFavorite={(id) => setFavorites(toggleFavorite(favorites, id))}
           onOpenDetail={(id) => navigate(`/pokemon/${id}`)}

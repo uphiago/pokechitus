@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { PokemonSummary } from '../../domain/pokemon';
 
 const FALLBACK_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png';
@@ -7,6 +7,11 @@ type Props = {
   pokemon: Pick<PokemonSummary, 'id' | 'name' | 'types' | 'isFavorite' | 'spriteUrl'>;
   onToggleFavorite: (id: string) => void;
   onOpenDetail?: (id: string) => void;
+};
+
+const typeClass = (type: string | undefined): string => {
+  if (!type) return 'type-default';
+  return `type-${type.replace(/\s+/g, '-').toLowerCase()}`;
 };
 
 export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) => {
@@ -18,8 +23,10 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) 
     setLoaded(false);
   }, [pokemon.spriteUrl]);
 
+  const themeClass = useMemo(() => typeClass(pokemon.types[0]), [pokemon.types]);
+
   return (
-    <article className="card" data-testid="pokemon-card">
+    <article className={`card ${themeClass}`} data-testid="pokemon-card">
       <div className="card-head">
         <div className="sprite-wrap">
           {!loaded ? <div className="skeleton skeleton-block sprite" /> : null}
@@ -45,11 +52,11 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) 
       </div>
       <p className="types">{pokemon.types.join(' • ') || 'unknown type'}</p>
       <div className="row">
-        <button className="btn btn-ghost" onClick={() => onToggleFavorite(pokemon.id)}>
+        <button className="btn btn-ghost touch-btn" onClick={() => onToggleFavorite(pokemon.id)}>
           {pokemon.isFavorite ? '★ Favorited' : '☆ Favorite'}
         </button>
         {onOpenDetail ? (
-          <button className="btn btn-primary" onClick={() => onOpenDetail(pokemon.id)}>
+          <button className="btn btn-primary touch-btn" onClick={() => onOpenDetail(pokemon.id)}>
             Details
           </button>
         ) : null}
