@@ -25,15 +25,23 @@ export const PokemonList = ({
   onPrefetchDetail
 }: Props) => {
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
+  const startItem = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, total);
+  const pageWindowStart = Math.max(1, page - 2);
+  const pageWindowEnd = Math.min(maxPage, page + 2);
+  const visiblePages = Array.from(
+    { length: pageWindowEnd - pageWindowStart + 1 },
+    (_, index) => pageWindowStart + index
+  );
 
   return (
     <section>
       <div className="results-head">
         <p>
-          Showing <strong>{items.length}</strong> of <strong>{total}</strong>
+          Exibindo <strong>{startItem}-{endItem}</strong> de <strong>{total}</strong>
         </p>
         <p>
-          Page <strong>{page}</strong> / {maxPage}
+          Página <strong>{page}</strong> / {maxPage}
         </p>
       </div>
 
@@ -51,21 +59,30 @@ export const PokemonList = ({
 
       <div className="pagination sticky-pagination">
         <button className="btn" onClick={() => onPageChange(1)} disabled={page <= 1}>
-          First
+          Início
         </button>
         <button className="btn" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
-          Previous
+          Anterior
         </button>
-        <span data-testid="page-indicator" className="page-pill">
-          {page}
-        </span>
+        <div className="pagination-pages">
+          {visiblePages.map((pageNumber) => (
+            <button
+              key={pageNumber}
+              className={`btn page-pill ${pageNumber === page ? 'btn-primary' : ''}`}
+              onClick={() => onPageChange(pageNumber)}
+              aria-current={pageNumber === page ? 'page' : undefined}
+            >
+              {pageNumber}
+            </button>
+          ))}
+        </div>
         <button className="btn" onClick={() => onPageChange(page + 1)} disabled={page >= maxPage}>
-          Next
+          Próxima
         </button>
         <button className="btn" onClick={() => onPageChange(maxPage)} disabled={page >= maxPage}>
-          Last
+          Final
         </button>
-        {isHydrating ? <span className="hydrating">Loading more...</span> : null}
+        {isHydrating ? <span className="hydrating">Carregando mais...</span> : null}
       </div>
     </section>
   );

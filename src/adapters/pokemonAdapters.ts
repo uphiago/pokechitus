@@ -23,6 +23,8 @@ export const toPokemonDetailBase = (
   height: detail.height ?? null,
   weight: detail.weight ?? null,
   abilities: detail.abilities?.map((a) => a.ability.name) ?? [],
+  moves: detail.moves?.map((move) => move.move.name) ?? [],
+  heldItems: detail.held_items?.map((item) => item.item.name) ?? [],
   stats: detail.stats?.map((s) => ({ name: s.stat.name, value: s.base_stat })) ?? [],
   isFavorite
 });

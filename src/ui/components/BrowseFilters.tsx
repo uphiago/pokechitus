@@ -9,6 +9,7 @@ type Props = {
   totalAvailable: number;
   onQueryChange: (value: string) => void;
   onTypeChange: (value: string) => void;
+  onClearFilters: () => void;
 };
 
 export const BrowseFilters = ({
@@ -18,9 +19,13 @@ export const BrowseFilters = ({
   loadedCount,
   totalAvailable,
   onQueryChange,
-  onTypeChange
+  onTypeChange,
+  onClearFilters
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const hasQuery = session.query.trim().length > 0;
+  const hasType = Boolean(session.filters.type);
+  const hasFilters = hasQuery || hasType;
 
   return (
     <section className="toolbar">
@@ -29,7 +34,7 @@ export const BrowseFilters = ({
           {open ? 'Hide filters' : 'Show filters'}
         </button>
         <p className="toolbar-meta">
-          {resultCount} matches • {loadedCount}/{totalAvailable} loaded
+          <strong>{resultCount}</strong> matches • {loadedCount}/{totalAvailable} loaded
         </p>
       </div>
 
@@ -39,7 +44,7 @@ export const BrowseFilters = ({
           aria-label="Search Pokemon"
           value={session.query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search by name"
+          placeholder="Procure por um Pokémon..."
         />
         <select
           className="input"
@@ -47,14 +52,34 @@ export const BrowseFilters = ({
           value={session.filters.type}
           onChange={(e) => onTypeChange(e.target.value)}
         >
-          <option value="">all types</option>
+          <option value="">todos os tipos</option>
           {typeOptions.map((type) => (
             <option key={type} value={type}>
               {type}
             </option>
           ))}
         </select>
+        <button className="btn" type="button" onClick={onClearFilters} disabled={!hasFilters}>
+          Limpar filtros
+        </button>
       </div>
+
+      {hasFilters ? (
+        <div className="active-filters" aria-live="polite">
+          {hasQuery ? <span className="chip neutral">Busca: {session.query.trim()}</span> : null}
+          {hasType ? <span className="chip neutral">Tipo: {session.filters.type}</span> : null}
+        </div>
+      ) : null}
+
+      {!hasFilters ? (
+        <p className="toolbar-hint">Dica: combine tipo + busca para resultados mais rápidos.</p>
+      ) : null}
+      {resultCount === 0 ? (
+        <p className="toolbar-hint">Nenhum resultado com os filtros atuais.</p>
+      ) : null}
+      {resultCount > 0 && loadedCount < totalAvailable ? (
+        <p className="toolbar-hint">Mais resultados são carregados conforme você pagina.</p>
+      ) : null}
     </section>
   );
 };

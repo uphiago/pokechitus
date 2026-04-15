@@ -50,8 +50,15 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail, onPrefetc
           <h3 className="card-title">{pokemon.name}</h3>
           <p className="card-sub">#{pokemon.id.padStart(3, '0')}</p>
         </div>
+        {pokemon.isFavorite ? <span className="fav-badge">Favorite</span> : null}
       </div>
-      <p className="types">{pokemon.types.join(' • ') || 'unknown type'}</p>
+      <div className="type-badges">
+        {(pokemon.types.length ? pokemon.types : ['unknown']).map((type) => (
+          <span key={type} className={`type-pill ${typeClass(type)}`}>
+            {type}
+          </span>
+        ))}
+      </div>
       <div className="row">
         <button className="btn btn-ghost touch-btn" onClick={() => onToggleFavorite(pokemon.id)}>
           {pokemon.isFavorite ? '★ Favorited' : '☆ Favorite'}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 type Props = {
   loading?: boolean;
@@ -19,6 +19,18 @@ export const AsyncState = ({
   children,
   onRetry
 }: Props) => {
+  const [showPartial, setShowPartial] = useState(false);
+
+  useEffect(() => {
+    if (!partial) {
+      setShowPartial(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setShowPartial(true), 220);
+    return () => clearTimeout(timer);
+  }, [partial]);
+
   if (loading) {
     return loadingFallback ?? <p data-testid="state-loading">Loading...</p>;
   }
@@ -48,7 +60,11 @@ export const AsyncState = ({
 
   return (
     <>
-      {partial ? <div className="banner warn">Showing last available data while refreshing.</div> : null}
+      {showPartial ? (
+        <div className="banner warn" role="status" aria-live="polite">
+          Showing last available data while refreshing.
+        </div>
+      ) : null}
       {children}
     </>
   );

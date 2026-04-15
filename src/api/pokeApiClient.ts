@@ -15,6 +15,8 @@ export type PokeDetailResponse = {
   height?: number;
   weight?: number;
   abilities?: Array<{ ability: { name: string } }>;
+  moves?: Array<{ move: { name: string } }>;
+  held_items?: Array<{ item: { name: string } }>;
   stats?: Array<{ base_stat: number; stat: { name: string } }>;
 };
 

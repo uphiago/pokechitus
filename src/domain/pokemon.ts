@@ -25,6 +25,8 @@ export type PokemonDetail = {
   height: number | null;
   weight: number | null;
   abilities: string[];
+  moves: string[];
+  heldItems: string[];
   stats: Array<{ name: string; value: number }>;
   evolutionChain: PokemonEvolution[];
   typeMatchup: PokemonTypeMatchup;
