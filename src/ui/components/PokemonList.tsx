@@ -21,8 +21,17 @@ export const PokemonList = ({
   onOpenDetail
 }: Props) => {
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
+
   return (
     <section>
+      <div className="results-head">
+        <p>
+          Showing <strong>{items.length}</strong> of <strong>{total}</strong>
+        </p>
+        <p>
+          Page <strong>{page}</strong> / {maxPage}
+        </p>
+      </div>
       <div className="grid">
         {items.map((pokemon) => (
           <PokemonCard
@@ -33,13 +42,21 @@ export const PokemonList = ({
           />
         ))}
       </div>
-      <div className="row" style={{ marginTop: 12 }}>
-        <button onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
+      <div className="pagination">
+        <button className="btn" onClick={() => onPageChange(1)} disabled={page <= 1}>
+          First
+        </button>
+        <button className="btn" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
           Previous
         </button>
-        <span data-testid="page-indicator">Page {page}</span>
-        <button onClick={() => onPageChange(page + 1)} disabled={page >= maxPage}>
+        <span data-testid="page-indicator" className="page-pill">
+          {page}
+        </span>
+        <button className="btn" onClick={() => onPageChange(page + 1)} disabled={page >= maxPage}>
           Next
+        </button>
+        <button className="btn" onClick={() => onPageChange(maxPage)} disabled={page >= maxPage}>
+          Last
         </button>
       </div>
     </section>

@@ -19,6 +19,7 @@ export const toPokemonDetail = (
   id: String(detail.id),
   name: detail.name,
   types: detail.types?.map((t) => t.type.name) ?? [],
+  spriteUrl: detail.sprites?.front_default ?? null,
   height: detail.height ?? null,
   weight: detail.weight ?? null,
   abilities: detail.abilities?.map((a) => a.ability.name) ?? [],

@@ -10,6 +10,7 @@ export type PokemonDetail = {
   id: string;
   name: string;
   types: string[];
+  spriteUrl: string | null;
   height: number | null;
   weight: number | null;
   abilities: string[];
