@@ -22,6 +22,9 @@ export type PokeDetailResponse = {
 
 export type PokeSpeciesResponse = {
   evolution_chain?: { url: string };
+  flavor_text_entries?: Array<{ flavor_text: string; language: { name: string } }>;
+  is_legendary?: boolean;
+  is_mythical?: boolean;
 };
 
 export type PokeEvolutionNode = {

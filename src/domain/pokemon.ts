@@ -22,6 +22,7 @@ export type PokemonDetail = {
   name: string;
   types: string[];
   spriteUrl: string | null;
+  artworkUrl: string | null;
   height: number | null;
   weight: number | null;
   abilities: string[];
@@ -31,6 +32,8 @@ export type PokemonDetail = {
   evolutionChain: PokemonEvolution[];
   typeMatchup: PokemonTypeMatchup;
   isFavorite: boolean;
+  flavorText: string | null;
+  isLegendary: boolean;
 };
 
 export type SearchFilters = {

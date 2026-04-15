@@ -12,9 +12,7 @@ type Props = {
 };
 
 const statLabel = (raw: string) =>
-  raw
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (m) => m.toUpperCase());
+  raw.replace(/-/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase());
 
 const capitalized = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -23,16 +21,23 @@ const typeClass = (type: string | undefined): string => {
   return `type-${type.replace(/\s+/g, '-').toLowerCase()}`;
 };
 
+const statColor = (value: number) => {
+  if (value >= 100) return '#22c55e';
+  if (value >= 60) return '#f59e0b';
+  return '#ef4444';
+};
+
 export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: Props) => {
-  const [src, setSrc] = useState(detail.spriteUrl ?? FALLBACK_SPRITE);
+  const artSrc = detail.artworkUrl ?? detail.spriteUrl ?? FALLBACK_SPRITE;
+  const [src, setSrc] = useState(artSrc);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<TabKey>('overview');
 
   useEffect(() => {
-    setSrc(detail.spriteUrl ?? FALLBACK_SPRITE);
+    setSrc(detail.artworkUrl ?? detail.spriteUrl ?? FALLBACK_SPRITE);
     setLoaded(false);
     setTab('overview');
-  }, [detail.id, detail.spriteUrl]);
+  }, [detail.id, detail.artworkUrl, detail.spriteUrl]);
 
   const totalStats = useMemo(
     () => detail.stats.reduce((acc, stat) => acc + stat.value, 0),
@@ -46,13 +51,10 @@ export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: 
     <section className={`card detail-card ${typeClass(primaryType)}`}>
       <div className="detail-shell">
         <div className="detail-left">
-          <p className="card-sub detail-number">#{detail.id.padStart(3, '0')}</p>
-          <h2>{detail.name}</h2>
-
-          <div className="sprite-wrap detail-sprite-wrap">
-            {!loaded ? <div className="skeleton skeleton-block detail-sprite" /> : null}
+          <div className="detail-artwork-wrap">
+            {!loaded && <div className="skeleton skeleton-block detail-artwork" />}
             <img
-              className={`detail-sprite ${loaded ? 'is-ready' : 'is-loading'}`}
+              className={`detail-artwork ${loaded ? 'is-ready' : 'is-loading'}`}
               src={src}
               alt={detail.name}
               onLoad={() => setLoaded(true)}
@@ -66,7 +68,13 @@ export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: 
             />
           </div>
 
-          <div className="type-badges centered">
+          <div className="detail-id-row">
+            <span className="card-sub">#{detail.id.padStart(3, '0')}</span>
+            {detail.isLegendary && <span className="legend-badge">Lendário</span>}
+          </div>
+          <h2 className="detail-name">{detail.name}</h2>
+
+          <div className="type-badges centered" style={{ marginBottom: 12 }}>
             {(detail.types.length ? detail.types : ['unknown']).map((type) => (
               <span key={type} className={`type-pill ${typeClass(type)}`}>
                 {type}
@@ -74,11 +82,13 @@ export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: 
             ))}
           </div>
 
-          <div className="detail-actions">
-            <button className="btn btn-ghost touch-btn" onClick={() => onToggleFavorite(detail.id)}>
-              {detail.isFavorite ? '★ Favorited' : '☆ Favorite'}
-            </button>
-          </div>
+          {detail.flavorText && (
+            <p className="detail-flavor">{detail.flavorText}</p>
+          )}
+
+          <button className="btn btn-ghost touch-btn detail-fav-btn" onClick={() => onToggleFavorite(detail.id)}>
+            {detail.isFavorite ? '★ Favorito' : '☆ Favoritar'}
+          </button>
         </div>
 
         <div className="detail-right">
@@ -94,50 +104,27 @@ export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: 
           </div>
 
           <div className="detail-tabs" role="tablist" aria-label="Pokemon detail sections">
-            <button
-              className={`btn ${tab === 'overview' ? 'btn-primary' : ''}`}
-              role="tab"
-              aria-selected={tab === 'overview'}
-              onClick={() => setTab('overview')}
-            >
-              Overview
-            </button>
-            <button
-              className={`btn ${tab === 'stats' ? 'btn-primary' : ''}`}
-              role="tab"
-              aria-selected={tab === 'stats'}
-              onClick={() => setTab('stats')}
-            >
-              Stats
-            </button>
-            <button
-              className={`btn ${tab === 'evolution' ? 'btn-primary' : ''}`}
-              role="tab"
-              aria-selected={tab === 'evolution'}
-              onClick={() => setTab('evolution')}
-            >
-              Evolution
-            </button>
-            <button
-              className={`btn ${tab === 'moves' ? 'btn-primary' : ''}`}
-              role="tab"
-              aria-selected={tab === 'moves'}
-              onClick={() => setTab('moves')}
-            >
-              Moves
-            </button>
+            {(['overview', 'stats', 'evolution', 'moves'] as TabKey[]).map((t) => (
+              <button
+                key={t}
+                className={`btn tab-btn ${tab === t ? 'tab-active' : ''}`}
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => setTab(t)}
+              >
+                {t === 'overview' ? 'Overview' : t === 'stats' ? 'Stats' : t === 'evolution' ? 'Evolução' : 'Moves'}
+              </button>
+            ))}
           </div>
 
-          {tab === 'overview' ? (
+          {tab === 'overview' && (
             <div className="detail-section motion-fade">
               <div className="detail-block">
-                <h3>Abilities</h3>
-                <div className="type-badges">
+                <h3>Habilidades</h3>
+                <div className="chip-row">
                   {detail.abilities.length ? (
                     detail.abilities.map((item) => (
-                      <span key={item} className="chip neutral">
-                        {capitalized(item)}
-                      </span>
+                      <span key={item} className="chip neutral">{capitalized(item)}</span>
                     ))
                   ) : (
                     <span className="chip neutral">N/A</span>
@@ -145,102 +132,104 @@ export const PokemonDetailPanel = ({ detail, onToggleFavorite, onOpenPokemon }: 
                 </div>
               </div>
 
-              <div className="detail-block">
-                <h3>Held Items</h3>
-                <div className="type-badges">
-                  {detail.heldItems.length ? (
-                    detail.heldItems.slice(0, 8).map((item) => (
-                      <span key={item} className="chip neutral">
-                        {capitalized(item)}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="chip neutral">None</span>
-                  )}
+              {detail.heldItems.length > 0 && (
+                <div className="detail-block">
+                  <h3>Itens Carregados</h3>
+                  <div className="chip-row">
+                    {detail.heldItems.slice(0, 8).map((item) => (
+                      <span key={item} className="chip neutral">{capitalized(item)}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="chip-section">
-                <h3>Type Matchup</h3>
-                <div className="chip-group">
-                  <span className="chip-label">Weak to</span>
-                  {detail.typeMatchup.weakTo.length ? (
-                    detail.typeMatchup.weakTo.map((item) => <span key={item} className="chip weak">{item}</span>)
-                  ) : (
-                    <span className="chip neutral">None</span>
-                  )}
-                </div>
-                <div className="chip-group">
-                  <span className="chip-label">Resistant to</span>
-                  {detail.typeMatchup.resistantTo.length ? (
-                    detail.typeMatchup.resistantTo.map((item) => (
-                      <span key={item} className="chip resist">{item}</span>
-                    ))
-                  ) : (
-                    <span className="chip neutral">None</span>
-                  )}
-                </div>
-                <div className="chip-group">
-                  <span className="chip-label">Immune to</span>
-                  {detail.typeMatchup.immuneTo.length ? (
-                    detail.typeMatchup.immuneTo.map((item) => (
-                      <span key={item} className="chip immune">{item}</span>
-                    ))
-                  ) : (
-                    <span className="chip neutral">None</span>
-                  )}
-                </div>
+                <h3>Matchup de Tipo</h3>
+                {detail.typeMatchup.weakTo.length > 0 && (
+                  <div className="chip-group">
+                    <span className="chip-label">Fraco contra</span>
+                    {detail.typeMatchup.weakTo.map((item) => (
+                      <span key={item} className={`type-pill ${typeClass(item)} chip-sm`}>{item}</span>
+                    ))}
+                  </div>
+                )}
+                {detail.typeMatchup.resistantTo.length > 0 && (
+                  <div className="chip-group">
+                    <span className="chip-label">Resiste a</span>
+                    {detail.typeMatchup.resistantTo.map((item) => (
+                      <span key={item} className={`type-pill ${typeClass(item)} chip-sm`}>{item}</span>
+                    ))}
+                  </div>
+                )}
+                {detail.typeMatchup.immuneTo.length > 0 && (
+                  <div className="chip-group">
+                    <span className="chip-label">Imune a</span>
+                    {detail.typeMatchup.immuneTo.map((item) => (
+                      <span key={item} className={`type-pill ${typeClass(item)} chip-sm`}>{item}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          ) : null}
+          )}
 
-          {tab === 'stats' ? (
+          {tab === 'stats' && (
             <div className="detail-section motion-fade">
               <div className="stats">
                 {detail.stats.map((stat) => (
                   <div key={stat.name} className="stat-row">
-                    <span>{statLabel(stat.name)}</span>
+                    <span className="stat-name">{statLabel(stat.name)}</span>
                     <div className="stat-bar-wrap">
-                      <div className="stat-bar" style={{ width: `${Math.min(stat.value, 150) / 1.5}%` }} />
+                      <div
+                        className="stat-bar"
+                        style={{
+                          width: `${Math.min(stat.value, 150) / 1.5}%`,
+                          background: statColor(stat.value)
+                        }}
+                      />
                     </div>
-                    <span>{stat.value}</span>
+                    <span className="stat-val">{stat.value}</span>
                   </div>
                 ))}
               </div>
-              <p className="stats-total">Base stat total: {totalStats}</p>
+              <p className="stats-total">Total: <strong>{totalStats}</strong></p>
             </div>
-          ) : null}
+          )}
 
-          {tab === 'evolution' ? (
+          {tab === 'evolution' && (
             <div className="detail-section motion-fade">
               <div className="evo-chain">
                 {detail.evolutionChain.map((evo, index) => (
                   <div key={evo.id} className="evo-node-wrap">
                     <button className="btn evo-node" onClick={() => onOpenPokemon(evo.id)}>
-                      #{evo.id.padStart(3, '0')} {capitalized(evo.name)}
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evo.id}.png`}
+                        alt={evo.name}
+                        className="evo-sprite"
+                      />
+                      <span>#{evo.id.padStart(3, '0')}</span>
+                      <span>{capitalized(evo.name)}</span>
                     </button>
-                    {index < detail.evolutionChain.length - 1 ? <span className="evo-arrow">→</span> : null}
+                    {index < detail.evolutionChain.length - 1 && <span className="evo-arrow">→</span>}
                   </div>
                 ))}
               </div>
             </div>
-          ) : null}
+          )}
 
-          {tab === 'moves' ? (
+          {tab === 'moves' && (
             <div className="detail-section motion-fade">
-              <div className="type-badges">
+              <div className="chip-row">
                 {topMoves.length ? (
                   topMoves.map((move) => (
-                    <span key={move} className="chip neutral">
-                      {capitalized(move)}
-                    </span>
+                    <span key={move} className="chip neutral">{capitalized(move)}</span>
                   ))
                 ) : (
-                  <span className="chip neutral">No moves available.</span>
+                  <span className="chip neutral">Nenhum move disponível.</span>
                 )}
               </div>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </section>

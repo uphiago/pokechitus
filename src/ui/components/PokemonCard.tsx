@@ -5,6 +5,7 @@ const FALLBACK_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/maste
 
 type Props = {
   pokemon: Pick<PokemonSummary, 'id' | 'name' | 'types' | 'isFavorite' | 'spriteUrl'>;
+  animIndex?: number;
   onToggleFavorite: (id: string) => void;
   onOpenDetail?: (id: string) => void;
   onPrefetchDetail?: (id: string) => void;
@@ -15,7 +16,7 @@ const typeClass = (type: string | undefined): string => {
   return `type-${type.replace(/\s+/g, '-').toLowerCase()}`;
 };
 
-export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail, onPrefetchDetail }: Props) => {
+export const PokemonCard = ({ pokemon, animIndex = 0, onToggleFavorite, onOpenDetail, onPrefetchDetail }: Props) => {
   const [src, setSrc] = useState(pokemon.spriteUrl ?? FALLBACK_SPRITE);
   const [loaded, setLoaded] = useState(false);
 
@@ -25,14 +26,19 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail, onPrefetc
   }, [pokemon.spriteUrl]);
 
   const themeClass = useMemo(() => typeClass(pokemon.types[0]), [pokemon.types]);
+  const delay = Math.min(animIndex * 35, 500);
 
   return (
-    <article className={`card ${themeClass}`} data-testid="pokemon-card">
-      <div className="card-head">
-        <div className="sprite-wrap">
-          {!loaded ? <div className="skeleton skeleton-block sprite" /> : null}
+    <article
+      className={`card ${themeClass}`}
+      data-testid="pokemon-card"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="card-media">
+        <div className="card-sprite-wrap">
+          {!loaded && <div className="skeleton skeleton-block card-sprite-img" />}
           <img
-            className={`sprite ${loaded ? 'is-ready' : 'is-loading'}`}
+            className={`card-sprite-img ${loaded ? 'is-ready' : 'is-loading'}`}
             src={src}
             alt={pokemon.name}
             loading="lazy"
@@ -46,33 +52,35 @@ export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail, onPrefetc
             }}
           />
         </div>
-        <div>
-          <h3 className="card-title">{pokemon.name}</h3>
-          <p className="card-sub">#{pokemon.id.padStart(3, '0')}</p>
+        {pokemon.isFavorite && <span className="fav-badge">★</span>}
+      </div>
+
+      <div className="card-body">
+        <p className="card-sub">#{pokemon.id.padStart(3, '0')}</p>
+        <h3 className="card-title">{pokemon.name}</h3>
+        <div className="type-badges centered">
+          {(pokemon.types.length ? pokemon.types : ['unknown']).map((type) => (
+            <span key={type} className={`type-pill ${typeClass(type)}`}>
+              {type}
+            </span>
+          ))}
         </div>
-        {pokemon.isFavorite ? <span className="fav-badge">Favorite</span> : null}
       </div>
-      <div className="type-badges">
-        {(pokemon.types.length ? pokemon.types : ['unknown']).map((type) => (
-          <span key={type} className={`type-pill ${typeClass(type)}`}>
-            {type}
-          </span>
-        ))}
-      </div>
-      <div className="row">
-        <button className="btn btn-ghost touch-btn" onClick={() => onToggleFavorite(pokemon.id)}>
-          {pokemon.isFavorite ? '★ Favorited' : '☆ Favorite'}
+
+      <div className="card-actions">
+        <button className="btn btn-ghost btn-icon" onClick={() => onToggleFavorite(pokemon.id)} aria-label={pokemon.isFavorite ? 'Remover favorito' : 'Favoritar'}>
+          {pokemon.isFavorite ? '★' : '☆'}
         </button>
-        {onOpenDetail ? (
+        {onOpenDetail && (
           <button
-            className="btn btn-primary touch-btn"
+            className="btn btn-primary btn-full"
             onMouseEnter={() => onPrefetchDetail?.(pokemon.id)}
             onFocus={() => onPrefetchDetail?.(pokemon.id)}
             onClick={() => onOpenDetail(pokemon.id)}
           >
-            Details
+            Detalhes
           </button>
-        ) : null}
+        )}
       </div>
     </article>
   );

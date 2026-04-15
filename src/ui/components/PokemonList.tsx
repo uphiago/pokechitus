@@ -46,10 +46,11 @@ export const PokemonList = ({
       </div>
 
       <div className="grid motion-fade" key={`grid-${page}`}>
-        {items.map((pokemon) => (
+        {items.map((pokemon, idx) => (
           <PokemonCard
             key={pokemon.id}
             pokemon={pokemon}
+            animIndex={idx}
             onToggleFavorite={onToggleFavorite}
             onOpenDetail={onOpenDetail}
             onPrefetchDetail={onPrefetchDetail}

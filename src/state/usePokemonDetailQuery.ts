@@ -88,9 +88,14 @@ export const fetchPokemonDetailView = async (
 
   let evolutionChain: PokemonEvolution[] = [{ id: base.id, name: base.name }];
   let typeMatchup: PokemonTypeMatchup = defaultTypeMatchup;
+  let flavorText: string | null = null;
+  let isLegendary = false;
 
   try {
     const species = await fetchPokemonSpecies(base.id, signal);
+    const entry = species.flavor_text_entries?.find((e) => e.language.name === 'en');
+    if (entry) flavorText = entry.flavor_text.replace(/[\f\n]/g, ' ').replace(/\s+/g, ' ').trim();
+    isLegendary = Boolean(species.is_legendary || species.is_mythical);
     if (species.evolution_chain?.url) {
       const evolution = await fetchEvolutionChain(species.evolution_chain.url, signal);
       const parsed = flattenEvolutionChain(evolution.chain);
@@ -110,7 +115,9 @@ export const fetchPokemonDetailView = async (
   return {
     ...base,
     evolutionChain,
-    typeMatchup
+    typeMatchup,
+    flavorText,
+    isLegendary
   };
 };
 
