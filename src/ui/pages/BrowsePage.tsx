@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AsyncState } from '../components/AsyncState';
 import { BrowseFilters } from '../components/BrowseFilters';
 import { PokemonList } from '../components/PokemonList';
@@ -19,10 +19,47 @@ type Props = {
   setFavorites: (next: FavoritesState) => void;
 };
 
+const readSessionFromParams = (params: URLSearchParams) => {
+  const session = createSearchSession();
+  const query = params.get('q') ?? '';
+  const type = params.get('type') ?? '';
+  const page = Number(params.get('page') ?? '1');
+
+  return {
+    ...session,
+    query,
+    filters: { ...session.filters, type },
+    page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
+  };
+};
+
+const sessionToQueryString = (session: ReturnType<typeof createSearchSession>) => {
+  const params = new URLSearchParams();
+  if (session.query.trim()) params.set('q', session.query.trim());
+  if (session.filters.type) params.set('type', session.filters.type);
+  if (session.page > 1) params.set('page', String(session.page));
+  return params.toString();
+};
+
 export const BrowsePage = ({ favorites, setFavorites }: Props) => {
   const navigate = useNavigate();
-  const [session, setSession] = useState(createSearchSession());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [session, setSession] = useState(() => readSessionFromParams(searchParams));
   const query = usePokemonBrowseQuery();
+
+  useEffect(() => {
+    const fromUrl = readSessionFromParams(searchParams);
+    setSession((current) => {
+      if (
+        current.query === fromUrl.query &&
+        current.filters.type === fromUrl.filters.type &&
+        current.page === fromUrl.page
+      ) {
+        return current;
+      }
+      return fromUrl;
+    });
+  }, [searchParams]);
 
   useEffect(() => {
     const nextPageNeed = (session.page + 1) * session.pageSize;
@@ -37,6 +74,13 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
     session.page,
     session.pageSize
   ]);
+
+  useEffect(() => {
+    const next = sessionToQueryString(session);
+    if (next !== searchParams.toString()) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, session, setSearchParams]);
 
   const catalog = useMemo(() => {
     if (!query.data) return [];
@@ -84,7 +128,7 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
         loadingFallback={<PokemonListSkeleton count={session.pageSize} />}
         error={query.isError ? 'Could not load Pokemon list.' : null}
         empty={!query.isPending && !query.isError && visible.total === 0}
-        partial={query.isFetching && query.isSuccess}
+        partial={query.isRefreshing && query.isSuccess}
         onRetry={() => query.refetch()}
       >
         <PokemonList
@@ -95,7 +139,10 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
           isHydrating={query.isHydrating}
           onPageChange={(page) => setSession((old) => setPage(old, page))}
           onToggleFavorite={(id) => setFavorites(toggleFavorite(favorites, id))}
-          onOpenDetail={(id) => navigate(`/pokemon/${id}`)}
+          onOpenDetail={(id) => {
+            const qs = sessionToQueryString(session);
+            navigate(`/pokemon/${id}${qs ? `?${qs}` : ''}`);
+          }}
         />
       </AsyncState>
     </main>

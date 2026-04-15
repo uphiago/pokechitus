@@ -20,8 +20,8 @@ export const usePokemonBrowseQuery = () => {
   const indexQuery = useQuery({
     queryKey: ['pokemon', 'catalog-index', CATALOG_LIMIT],
     staleTime: 10 * 60 * 1000,
-    queryFn: async (): Promise<CatalogIndex> => {
-      const list = await fetchPokemonList(0, CATALOG_LIMIT);
+    queryFn: async ({ signal }): Promise<CatalogIndex> => {
+      const list = await fetchPokemonList(0, CATALOG_LIMIT, signal);
       return { count: list.count, names: list.results.map((result) => result.name) };
     }
   });
@@ -35,11 +35,11 @@ export const usePokemonBrowseQuery = () => {
       const nextOffset = lastPage.nextOffset;
       return nextOffset < indexQuery.data.names.length ? nextOffset : undefined;
     },
-    queryFn: async ({ pageParam }): Promise<CatalogChunk> => {
+    queryFn: async ({ pageParam, signal }): Promise<CatalogChunk> => {
       const offset = Number(pageParam);
       if (!indexQuery.data) return { items: [], nextOffset: offset };
       const names = indexQuery.data.names.slice(offset, offset + CHUNK_SIZE);
-      const details = await Promise.all(names.map((name) => fetchPokemonByName(name)));
+      const details = await Promise.all(names.map((name) => fetchPokemonByName(name, signal)));
       return {
         items: details.map((detail) => toPokemonSummary(detail, false)),
         nextOffset: offset + names.length
@@ -48,6 +48,10 @@ export const usePokemonBrowseQuery = () => {
   });
 
   useEffect(() => {
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      return;
+    }
+
     if (chunkQuery.hasNextPage && !chunkQuery.isFetchingNextPage) {
       const timer = window.setTimeout(() => {
         void chunkQuery.fetchNextPage();
@@ -71,6 +75,8 @@ export const usePokemonBrowseQuery = () => {
     isSuccess: Boolean(indexQuery.isSuccess),
     isFetching: indexQuery.isFetching || chunkQuery.isFetchingNextPage,
     isHydrating: chunkQuery.hasNextPage || chunkQuery.isFetchingNextPage,
+    isRefreshing:
+      indexQuery.isRefetching || (chunkQuery.isRefetching && !chunkQuery.isFetchingNextPage),
     hasNextPage: chunkQuery.hasNextPage,
     fetchNextPage: chunkQuery.fetchNextPage,
     isFetchingNextPage: chunkQuery.isFetchingNextPage,
