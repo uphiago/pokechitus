@@ -6,8 +6,8 @@ import { queryKeys } from './queryKeys';
 export const usePokemonDetailQuery = (id: string, favoriteIds: string[]) => {
   return useQuery({
     queryKey: queryKeys.detail(id),
-    queryFn: async () => {
-      const detail = await fetchPokemonById(id);
+    queryFn: async ({ signal }) => {
+      const detail = await fetchPokemonById(id, signal);
       return toPokemonDetail(detail, favoriteIds.includes(String(detail.id)));
     },
     enabled: Boolean(id)
