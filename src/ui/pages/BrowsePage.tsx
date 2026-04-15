@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AsyncState } from '../components/AsyncState';
 import { BrowseFilters } from '../components/BrowseFilters';
 import { PokemonList } from '../components/PokemonList';
+import { PokemonListSkeleton } from '../components/Skeletons';
 import {
   createSearchSession,
   selectVisiblePokemon,
@@ -64,6 +65,7 @@ export const BrowsePage = ({ favorites, setFavorites }: Props) => {
 
       <AsyncState
         loading={query.isPending}
+        loadingFallback={<PokemonListSkeleton count={session.pageSize} />}
         error={query.isError ? 'Could not load Pokemon list.' : null}
         empty={!query.isPending && !query.isError && visible.total === 0}
         partial={query.isFetching && query.isSuccess}

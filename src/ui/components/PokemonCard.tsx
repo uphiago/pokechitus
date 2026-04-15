@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import type { PokemonSummary } from '../../domain/pokemon';
+
+const FALLBACK_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png';
 
 type Props = {
   pokemon: Pick<PokemonSummary, 'id' | 'name' | 'types' | 'isFavorite' | 'spriteUrl'>;
@@ -7,15 +10,34 @@ type Props = {
 };
 
 export const PokemonCard = ({ pokemon, onToggleFavorite, onOpenDetail }: Props) => {
+  const [src, setSrc] = useState(pokemon.spriteUrl ?? FALLBACK_SPRITE);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setSrc(pokemon.spriteUrl ?? FALLBACK_SPRITE);
+    setLoaded(false);
+  }, [pokemon.spriteUrl]);
+
   return (
     <article className="card" data-testid="pokemon-card">
       <div className="card-head">
-        <img
-          className="sprite"
-          src={pokemon.spriteUrl ?? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'}
-          alt={pokemon.name}
-          loading="lazy"
-        />
+        <div className="sprite-wrap">
+          {!loaded ? <div className="skeleton skeleton-block sprite" /> : null}
+          <img
+            className={`sprite ${loaded ? 'is-ready' : 'is-loading'}`}
+            src={src}
+            alt={pokemon.name}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => {
+              if (src !== FALLBACK_SPRITE) {
+                setSrc(FALLBACK_SPRITE);
+                return;
+              }
+              setLoaded(true);
+            }}
+          />
+        </div>
         <div>
           <h3 className="card-title">{pokemon.name}</h3>
           <p className="card-sub">#{pokemon.id.padStart(3, '0')}</p>

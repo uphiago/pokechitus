@@ -3,6 +3,7 @@ import { usePokemonDetailQuery } from '../../state/usePokemonDetailQuery';
 import { type FavoritesState, toggleFavorite } from '../../state/favoritesStore';
 import { AsyncState } from '../components/AsyncState';
 import { PokemonDetailPanel } from '../components/PokemonDetailPanel';
+import { PokemonDetailSkeleton } from '../components/Skeletons';
 
 type Props = {
   favorites: FavoritesState;
@@ -18,8 +19,9 @@ export const DetailPage = ({ favorites, setFavorites }: Props) => {
       <h1>Pokemon Detail</h1>
       <AsyncState
         loading={detail.isPending}
+        loadingFallback={<PokemonDetailSkeleton />}
         error={detail.isError ? 'Could not load Pokemon detail.' : null}
-        partial={false}
+        partial={detail.isFetching && detail.isSuccess}
         onRetry={() => detail.refetch()}
       >
         {detail.data ? (

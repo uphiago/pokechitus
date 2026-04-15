@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import type { PokemonDetail } from '../../domain/pokemon';
+
+const FALLBACK_SPRITE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png';
 
 type Props = {
   detail: PokemonDetail;
@@ -6,14 +9,33 @@ type Props = {
 };
 
 export const PokemonDetailPanel = ({ detail, onToggleFavorite }: Props) => {
+  const [src, setSrc] = useState(detail.spriteUrl ?? FALLBACK_SPRITE);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setSrc(detail.spriteUrl ?? FALLBACK_SPRITE);
+    setLoaded(false);
+  }, [detail.spriteUrl]);
+
   return (
     <section className="card detail-card">
       <div className="detail-head">
-        <img
-          className="detail-sprite"
-          src={detail.spriteUrl ?? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'}
-          alt={detail.name}
-        />
+        <div className="sprite-wrap detail-sprite-wrap">
+          {!loaded ? <div className="skeleton skeleton-block detail-sprite" /> : null}
+          <img
+            className={`detail-sprite ${loaded ? 'is-ready' : 'is-loading'}`}
+            src={src}
+            alt={detail.name}
+            onLoad={() => setLoaded(true)}
+            onError={() => {
+              if (src !== FALLBACK_SPRITE) {
+                setSrc(FALLBACK_SPRITE);
+                return;
+              }
+              setLoaded(true);
+            }}
+          />
+        </div>
         <div>
           <h2>{detail.name}</h2>
           <p className="card-sub">#{detail.id.padStart(3, '0')}</p>
